@@ -37,7 +37,9 @@ try {
     $report = ''
     if ($pending.Wait(5000)) {
       $context = $pending.Result
-      $report = [System.IO.StreamReader]::new($context.Request.InputStream).ReadToEnd()
+      # Any local page can post here, so keep control characters such as
+      # terminal escape sequences out of the console.
+      $report = [System.IO.StreamReader]::new($context.Request.InputStream).ReadToEnd() -replace '\p{C}', ''
       $context.Response.AddHeader('Access-Control-Allow-Origin', '*')
       $context.Response.StatusCode = 204
       $context.Response.Close()
