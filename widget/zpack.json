@@ -1,0 +1,35 @@
+{
+  "$schema": "https://github.com/glzr-io/zebar/raw/v3.0.0/resources/zpack-schema.json",
+  "name": "systray-memory-repro",
+  "version": "0.0.0",
+  "description": "Subscribes to Zebar's systray provider and reports what it receives.",
+  "tags": [],
+  "previewImages": [],
+  "repositoryUrl": "",
+  "widgets": [
+    {
+      "name": "systray",
+      "htmlPath": "./index.html",
+      "zOrder": "top_most",
+      "shownInTaskbar": false,
+      "focused": false,
+      "resizable": false,
+      "transparent": false,
+      "includeFiles": ["index.html"],
+      "caching": { "defaultDuration": 0, "rules": [] },
+      "privileges": { "shellCommands": [] },
+      "presets": [
+        {
+          "name": "default",
+          "anchor": "bottom_right",
+          "offsetX": "-16px",
+          "offsetY": "-64px",
+          "width": "680px",
+          "height": "48px",
+          "monitorSelection": { "type": "primary" },
+          "dockToEdge": { "enabled": false, "edge": null, "windowMargin": "0px" }
+        }
+      ]
+    }
+  ]
+}

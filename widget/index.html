@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        overflow: hidden;
+        background: #1e1e2e;
+        color: #cdd6f4;
+        font: 12px Consolas, monospace;
+        white-space: nowrap;
+      }
+      p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="report"></p>
+    <script type="module">
+      import * as zebar from 'https://esm.sh/zebar@3.3.1';
+
+      // collector.ps1 listens here; reports are dropped when it is not running.
+      const COLLECTOR = 'http://localhost:47123/';
+
+      const providers = zebar.createProviderGroup({ systray: { type: 'systray' } });
+      let outputs = 0;
+      let imageBytes = 0;
+      // Outputs that the garbage collector has not freed yet, whether still
+      // referenced or merely not collected so far.
+      let alive = 0;
+      const finalizer = new FinalizationRegistry(() => (alive -= 1));
+
+      providers.onOutput(() => {
+        outputs += 1;
+        alive += 1;
+        finalizer.register(providers.outputMap.systray, null);
+        for (const icon of providers.outputMap.systray?.icons ?? []) imageBytes += icon.iconBytes.length;
+      });
+
+      setInterval(() => {
+        const report = JSON.stringify({
+          icons: providers.outputMap.systray?.icons.length ?? 0,
+          outputs,
+          alive,
+          imageMB: +(imageBytes / 1048576).toFixed(1),
+          jsHeapMB: +(performance.memory.usedJSHeapSize / 1048576).toFixed(1),
+        });
+        document.getElementById('report').textContent = report;
+        fetch(COLLECTOR, { method: 'POST', body: report }).catch(() => {});
+      }, 2000);
+    </script>
+  </body>
+</html>
